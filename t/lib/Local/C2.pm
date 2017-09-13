@@ -1,7 +1,7 @@
 package # hide from PAUSE
     Local::C2;
 
-use Class::Accessor::Array::Glob {
+use Class::Accessor::Array::Slurpy {
     accessors => {
         foo => 0,
         bar => 1,

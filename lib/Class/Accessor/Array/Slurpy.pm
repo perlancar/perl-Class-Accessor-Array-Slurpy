@@ -1,4 +1,4 @@
-package Class::Accessor::Array::Glob;
+package Class::Accessor::Array::Slurpy;
 
 # DATE
 # VERSION
@@ -18,15 +18,15 @@ sub import {
         $max_idx = $_ if !defined($max_idx) || $max_idx < $_;
     }
 
-    my $glob_attribute = $spec->{glob_attribute};
+    my $slurpy_attribute = $spec->{slurpy_attribute};
 
     # generate accessors
     for my $meth (keys %{$spec->{accessors}}) {
         my $idx = $spec->{accessors}{$meth};
         my $is = 'rw';
         my $code_str = $is eq 'rw' ? 'sub (;$) { ' : 'sub () { ';
-        if (defined($glob_attribute) && $glob_attribute eq $meth) {
-            die "Glob attribute must be put at the last index"
+        if (defined($slurpy_attribute) && $slurpy_attribute eq $meth) {
+            die "Slurpy attribute must be put at the last index"
                 unless $idx == $max_idx;
             $code_str .= "splice(\@{\$_[0]}, $idx, scalar(\@{\$_[0]}), \@{\$_[1]}) if \@_ > 1; "
                 if $is eq 'rw';
@@ -44,7 +44,7 @@ sub import {
 
     # generate constructor
     {
-        my $n = ($max_idx // 0) + 1; $n-- if defined $glob_attribute;
+        my $n = ($max_idx // 0) + 1; $n-- if defined $slurpy_attribute;
         my $code_str = 'sub { my $class = shift; bless [(undef) x '.$n.'], $class }';
 
         #say "D:constructor code for class $caller: ", $code_str;
@@ -57,7 +57,7 @@ sub import {
 }
 
 1;
-# ABSTRACT: Generate accessors/constructor for array-based object (supports globbing attribute)
+# ABSTRACT: Generate accessors/constructor for array-based object (supports slurpy attribute)
 
 =for Pod::Coverage .+
 
@@ -66,13 +66,13 @@ sub import {
 In F<lib/Your/Class.pm>:
 
  package Your::Class;
- use Class::Accessor::Array::Glob {
+ use Class::Accessor::Array::Slurpy {
      accessors => {
          foo => 0,
          bar => 1,
          baz => 2,
      },
-     glob_attribute => 'baz',
+     slurpy_attribute => 'baz',
  };
 
 In code that uses your class:
@@ -93,17 +93,17 @@ C<$obj> is now:
 
 This module is a builder for array-backed classes. It is the same as
 L<Class::Accessor::Array> except that you can define your last (in term of the
-index in array storage) attribute to be a "glob attribute", meaning it is an
+index in array storage) attribute to be a "slurpy attribute", meaning it is an
 array where its elements are stored as elements of the array storage. There can
-be at most one glob attribute and it must be the last.
+be at most one slurpy attribute and it must be the last.
 
-Note that without a glob attribute, you can still store arrays or other complex
-data in your attributes. It's just that with a glob attribute, you can keep a
-single flat array backend, so the overall number of arrays is minimized.
+Note that without a slurpy attribute, you can still store arrays or other
+complex data in your attributes. It's just that with a slurpy attribute, you can
+keep a single flat array backend, so the overall number of arrays is minimized.
 
 An example of application: tree node objects, where the first attribute (array
 element) is the parent, then zero or more extra attributes, then the last
-attribute is a globbing one storing zero or more children. This is how
+attribute is a slurpy one storing zero or more children. This is how
 L<Mojo::DOM> stores its HTML tree node, for example.
 
 
