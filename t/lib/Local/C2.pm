@@ -11,7 +11,7 @@ use Class::Accessor::Array::Slurpy {
         quux => 4,
     },
 
-    glob_attribute => 'quux',
+    slurpy_attribute => 'quux',
 };
 
 1;
